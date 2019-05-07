@@ -1,0 +1,46 @@
+﻿@inject UserState UserState
+@using LoveDotNet.Models
+@*TODO: https://docs.microsoft.com/en-us/aspnet/core/blazor/forms-validation?view=aspnetcore-3.0*@
+
+<div class="text-center">
+    <div class="login-dialog">
+        <h1 class="h3 mb-3 font-weight-normal">修改资料</h1>
+        <input type="text" class="form-control" placeholder="昵称" name="email" bind="@User.Name" />
+        <input type="text" class="form-control" placeholder="电子邮件地址" name="email" bind="@User.Email" />
+        <input type="password" class="form-control" placeholder="密码" name="password" bind="@User.Password" />
+        <input type="password" class="form-control" placeholder="请重新输入密码" name="password" bind="@PasswdAgain" />
+        <div class="alert alert-danger @(updateFailed ? "" : "hide")" role="alert">
+            错误：修改失败，请重新检查输入。
+        </div>
+        <p />
+        <div class=" dialog-buttons">
+            <button class="btn btn-lg btn-primary dialog-button" type="submit" onclick="@_UpdateInfo">确认</button>
+        </div>
+    </div>
+</div>
+
+@functions {
+
+    [Parameter] User User { get; set; }
+
+    string PasswdAgain;
+    bool updateFailed;
+
+    protected override void OnParametersSet()
+    {
+        PasswdAgain = User.Password;
+        StateHasChanged();
+    }
+
+    async void _UpdateInfo()
+    {
+        updateFailed = false;
+        if (User.Password != PasswdAgain
+            || !await UserState.UpdateUser(User.Id, User))
+        {
+            updateFailed = true;
+        }
+    }
+
+}
+

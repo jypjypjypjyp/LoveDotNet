@@ -1,0 +1,17 @@
+﻿@using LoveDotNet.Models
+
+<div>
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <UserInfo User="Comment.User"/>
+            @Comment.Time.ToString("U")
+        </div>
+        <div class="card-body">
+            @((MarkupString)Comment.Content)
+        </div>
+    </div>
+</div>
+
+@functions{
+    [Parameter] Comment Comment { get; set; }
+}

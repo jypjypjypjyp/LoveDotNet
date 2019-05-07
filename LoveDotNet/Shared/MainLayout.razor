@@ -1,0 +1,65 @@
+﻿@inherits LayoutComponentBase
+@inject UserState UserState
+@inject HttpClient Http
+@using BlazingComponents
+@inject IUriHelper UriHelper
+@implements IDisposable
+
+<div class="sidebar">
+    <NavMenu />
+</div>
+
+<div class="main">
+    <div class="top-row px-4">
+        <button type="button" class="btn btn-primary carousel-control-prev-icon back" onclick="@_Back"/>
+        @if (UserState.CurrentUser.IsEmpty())
+        {
+            <button class="btn btn-primary ml-md-auto" onclick="@(()=>UserState.ShowLoginDialog = true)">请登录</button>
+        }
+        else
+        {
+            <div class="info-card">
+                <UserInfo User="@UserState.CurrentUser" />
+                <a class="btn btn-primary ml-md-auto" href="editor">编辑</a>
+                <button class="btn btn-primary ml-md-auto" onclick="@_Signout">注销</button>
+            </div>
+        }
+    </div>
+
+    <div class="content px-4">
+        @Body
+    </div>
+
+    <TemplatedDialog Show="@UserState.ShowLoginDialog" >
+        <LoginDialog/>
+    </TemplatedDialog>
+</div>
+
+@functions{
+
+    protected override void OnInit()
+    {
+        UserState.StateChanged += OnUserStateChanged;
+    }
+
+    void IDisposable.Dispose()
+    {
+        UserState.StateChanged -= OnUserStateChanged;
+    }
+
+    void OnUserStateChanged(object sender, EventArgs e)
+    {
+        UriHelper.NavigateTo("/");
+        StateHasChanged();
+    }
+
+    void _Back()
+    {
+        UriHelper.NavigateTo("/");
+    }
+
+    void _Signout()
+    {
+        UserState.Signout();
+    }
+}

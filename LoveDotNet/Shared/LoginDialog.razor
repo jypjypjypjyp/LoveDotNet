@@ -1,0 +1,87 @@
+﻿@inject UserState UserState
+@*TODO: https://docs.microsoft.com/en-us/aspnet/core/blazor/forms-validation?view=aspnetcore-3.0*@
+
+<div class="text-center">
+    @if (mode)
+    {
+    <div class="login-dialog">
+        <h1 class="h3 mb-3 font-weight-normal">请登录</h1>
+        <input type="text" class="form-control" placeholder="电子邮件地址" name="email" bind="@Email" />
+        <p />
+        <input type="password" class="form-control" placeholder="密码" name="password" bind="@Passwd" />
+        <div class="alert alert-danger @(loginFailed ? "" : "hide")" role="alert">
+            错误：无法登录，请重新检查输入。
+        </div>
+        <div class="checkbox mb-3">
+            <label>
+                <input type="checkbox" value="remember-me"> 记住密码
+            </label>
+        </div>
+        <div>
+            <button class="btn btn-lg btn-primary dialog-button" type="submit" onclick="@_Login">登录</button>
+            <button class="btn btn-lg btn-primary dialog-button" type="submit" onclick="@ToSignup">注册</button>
+        </div>
+    </div>
+    }
+    else
+    {
+        <div class="login-dialog">
+            <h1 class="h3 mb-3 font-weight-normal">请注册</h1>
+            <input type="text" class="form-control" placeholder="电子邮件地址" name="email" bind="@Email" />
+            <input type="password" class="form-control" placeholder="密码" name="password" bind="@Passwd" />
+            <input type="password" class="form-control" placeholder="请重新输入密码" name="password" bind="@PasswdAgain" />
+            <div class="alert alert-danger @(signupFailed ? "" : "hide")" role="alert">
+                错误：无法注册，请重新检查输入。
+            </div>
+            <p />
+            <div class=" dialog-buttons">
+                <button class="btn btn-lg btn-primary dialog-button" type="submit" onclick="@_Signup">注册</button>
+                <button class="btn btn-lg btn-primary dialog-button" type="submit" onclick="@ToLogin">返回</button>
+            </div>
+        </div>
+    }
+</div>
+
+@functions {
+
+    string Email;
+    string Passwd;
+    string PasswdAgain;
+
+    bool mode = true; // mode: true is login, false is signup
+    bool loginFailed;
+    bool signupFailed;
+
+    void ToLogin()
+    {
+        loginFailed = false;
+        mode = true;
+    }
+
+    void ToSignup()
+    {
+        signupFailed = false;
+        mode = false;
+    }
+
+    async Task _Login()
+    {
+        loginFailed = false;
+        if (!await UserState.Login(Email, Passwd))
+        {
+            loginFailed = true;
+        }
+    }
+
+    async Task _Signup()
+    {
+        signupFailed = false;
+        if (Passwd != PasswdAgain
+            || !await UserState.Signup(Email, Passwd))
+        {
+            signupFailed = true;
+        }
+    }
+
+}
+

@@ -1,0 +1,145 @@
+﻿@page "/user/{Id:int}"
+@inject BlogState BlogState
+@inject UserState UserState
+@inject IUriHelper UriHelper
+@inject IJSRuntime JSRuntime
+@using LoveDotNet.Helpers
+@using BlazingComponents
+@implements IDisposable
+
+@if (user != null)
+{
+    <div class="py-5 text-center">
+        <div class="d-inline-block">
+            <img src="/avator/@(user.Avator??"0.png")" class="img-fluid avator-lg" />
+            <p />
+            @if (isMe)
+            {
+                <ImageUploader UploadImage="@_UploadFile" FileName="@user.Id.ToString()" Floder="@("avator")" />
+            }
+        </div>
+        <p />
+        <h5>@(user.Name ?? "不留名的大佬")</h5>
+        <p>@user.Email</p>
+        @if (isMe)
+        {
+            <button class="btn btn-primary ml-md-auto" onclick="@(()=>UserState.ShowUpdateDialog = true)">修改资料</button>
+            <div class="alert alert-danger @(applyFailed ? "" : "hide")" role="alert">
+                错误：无法登录，请重新检查输入。
+            </div>
+        }
+    </div>
+
+    <div class="card m-auto shadow-sm">
+        <div class="card-header d-inline-flex card-head-text">
+            <h5 class="my-0 font-weight-normal">文章</h5>
+            @if (user.IsEditor && isMe)
+            {
+                <button class="btn btn-primary ml-md-auto" onclick="@ToEditor">发布文章</button>
+            }
+        </div>
+        <div class="card-body">
+            @if (user.IsEditor)
+            {
+                <TemplatedList UpdatePage="@((p)=>BlogState.UpdatePage(p,user.Id))" ListGroupStyle="orders-list"
+                               TotalAmount="@totalAmount" ItemsPerPage="@AppConst.BlogsPerPage">
+                    <LoadingContent><text>Loading...</text></LoadingContent>
+                    <EmptyContent>
+                        <h5>Empty</h5>
+                    </EmptyContent>
+                    <ItemContent Context="item">
+                        <BlogCard Article="@item" />
+                    </ItemContent>
+                </TemplatedList>
+            }
+            else if (isMe)
+            {
+                <button class="btn btn-primary ml-md-auto" onclick="@_Apply">申请成为编辑</button>
+                <div class="alert alert-danger @(applyFailed ? "" : "hide")" role="alert">
+                    未知错误!
+                </div>
+                <div class="alert alert-success @(applySuccess ? "" : "hide")" role="alert">
+                    申请成功，请等待回复。
+                </div>
+            }
+        </div>
+    </div>
+
+    <TemplatedDialog Show="@UserState.ShowUpdateDialog">
+        <UpdateInfoDialog User="@user" />
+    </TemplatedDialog>
+}
+
+@functions {
+    [Parameter] int Id { get; set; }
+
+    LoveDotNet.Models.User user;
+    bool isMe;
+    int totalAmount;
+    bool applyFailed;
+    bool applySuccess;
+
+    protected override async Task OnInitAsync()
+    {
+        UserState.StateChanged += OnUserStateChanged;
+        await Init();
+    }
+
+    async Task Init()
+    {
+        applyFailed = applySuccess = false;
+        if (Id == UserState.CurrentUser.Id)
+        {
+            isMe = true;
+            user = UserState.CurrentUser;
+            totalAmount = await BlogState.GetTotalAmountByUser(user.Id);
+        }
+        else
+        {
+            isMe = false;
+            user = await UserState.GetUser(Id);
+        }
+    }
+
+    void IDisposable.Dispose()
+    {
+        UserState.StateChanged -= OnUserStateChanged;
+    }
+
+    async void OnUserStateChanged(object sender, EventArgs e)
+    {
+        await Init();
+        StateHasChanged();
+    }
+
+    async Task<bool> _UploadFile(string fileName)
+    {
+        user.Avator = fileName;
+        if (await UserState.UpdateUser(user.Id, user))
+        {
+            return true;
+        }
+        user.Avator = null;
+        return false;
+    }
+
+    async void _Apply()
+    {
+        if (await UserState.Apply())
+        {
+            applyFailed = false;
+            applySuccess = true;
+        }
+        else
+        {
+            applyFailed = true;
+            applySuccess = false;
+        }
+        StateHasChanged();
+    }
+
+    void ToEditor()
+    {
+        UriHelper.NavigateTo("/editor");
+    }
+}

@@ -1,0 +1,120 @@
+@typeparam TItem
+
+@if (items == null)
+{
+    @LoadingContent
+}
+else if (items.Count == 0)
+{
+    @EmptyContent
+}
+else
+{
+    <div class="list-group @ListGroupStyle">
+        @foreach (var item in items)
+        {
+            @ItemContent(item)
+        }
+    </div>
+
+    <div>
+        <nav>
+            <ul class="pagination">
+                <li class="page-item @(curPageNumber==1?"disabled":"")">
+                    <div class="page-link" onclick="@(() =>_SelectPage(curPageNumber-1))">
+                        <span>«</span>
+                    </div>
+                </li>
+                @foreach (var i in pagesNumber)
+                {
+                    if (i == -1)
+                    {
+                        <li class="page-item">
+                            <div class="page-link">
+                                <span>...</span>
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item @(i==curPageNumber ? "active" : "")">
+                            <div class="page-link" onclick="@(() =>_SelectPage(i))">
+                                <span>@i</span>
+                            </div>
+                        </li>
+                    }
+                }
+                <li class="page-item @(curPageNumber==pagesTotalAmount?"disabled":"")">
+                    <div class="page-link"  onclick="@(() =>_SelectPage(curPageNumber+1))">
+                        <span>&raquo;</span>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    
+}
+
+@functions {
+    List<TItem> items;
+    int curPageNumber;
+    int pagesTotalAmount;
+    List<int> pagesNumber;
+
+    [Parameter] RenderFragment LoadingContent { get; set; }
+    [Parameter] RenderFragment EmptyContent { get; set; }
+    [Parameter] RenderFragment<TItem> ItemContent { get; set; }
+    [Parameter] Func<int, Task<List<TItem>>> UpdatePage { get; set; }
+    [Parameter] int TotalAmount { get; set; }
+    [Parameter] string ListGroupStyle { get; set; }
+    [Parameter] int ItemsPerPage { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        float fp = ((float)TotalAmount / ItemsPerPage);
+        int ip = TotalAmount / ItemsPerPage;
+        pagesTotalAmount = fp > ip ? ip + 1 : ip;
+        curPageNumber = 1;
+        _UpdatePagesNumber();
+        items = await UpdatePage(curPageNumber);
+    }
+
+    async Task _SelectPage(int pageNumber)
+    {
+        curPageNumber = pageNumber;
+        _UpdatePagesNumber();
+        items = await UpdatePage(curPageNumber);
+
+        StateHasChanged();
+    }
+
+    void _UpdatePagesNumber()
+    {
+        if (pagesNumber == null)
+        {
+            pagesNumber = new List<int>();
+        }
+        else
+        {
+            pagesNumber.Clear();
+        }
+        if (pagesTotalAmount<=9)
+        {
+            pagesNumber.AddRange(Enumerable.Range(1, pagesTotalAmount));
+        }
+        else
+        {
+            if (curPageNumber>3)
+            {
+                pagesNumber.Add(1);
+                pagesNumber.Add(-1);
+            }
+            pagesNumber.AddRange(Enumerable.Range(Math.Max(curPageNumber-2,1), 5));
+            if (pagesTotalAmount-curPageNumber>3)
+            {
+                pagesNumber.Add(-1);
+                pagesNumber.Add(pagesTotalAmount);
+            }
+        }
+    }
+}

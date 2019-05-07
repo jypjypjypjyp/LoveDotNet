@@ -1,0 +1,23 @@
+﻿@inject BlogState BlogState
+@inject IUriHelper UriHelper
+@using LoveDotNet.Models
+
+<div class="col-md-12">
+    <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative"
+            onclick="@_ToArticle">
+        <div class="col p-4 d-flex flex-column position-static pointer">
+            <h3 class="mb-0">@Article.Title</h3>
+            <div class="mb-1 text-muted">@Article.Time.ToShortDateString()</div>
+            <p class="card-text auto-wrap">@Article.Description</p>
+        </div>
+    </div>
+</div>
+
+@functions{
+    [Parameter] Article Article { get; set; }
+
+    void _ToArticle()
+    {
+        UriHelper.NavigateTo("/Article/"+Article.Id);
+    }
+}

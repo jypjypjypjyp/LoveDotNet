@@ -1,0 +1,138 @@
+﻿@page "/article/{Id:int}"
+@inject BlogState BlogState
+@inject UserState UserState
+@using LoveDotNet
+@using LoveDotNet.Models
+@using LoveDotNet.Helpers
+@using BlazingComponents
+@implements IDisposable
+
+@if (article == null)
+{
+    <h5>Loading</h5>
+}
+else
+{
+    <div class="blog-post col-md-10 article">
+        <h2 class="blog-post-title">@article?.Title<UserInfo User="@article.Anthor" /></h2>
+        <p class="blog-post-meta">@article?.Time.ToString("U")</p>
+        @if (paragraphs != null)
+        {
+            foreach (var p in paragraphs)
+            {
+                switch (p.Type)
+                {
+                    case ParagraphType.Text:
+                        @((MarkupString)p.Content)
+                        break;
+                    case ParagraphType.Image:
+                        <div class="col-md-8 mx-auto">
+                            <div class="card mb-4 shadow-sm">
+                                <img src="/img/@(GetImage(p.Content))" class="img-fluid" />
+                                <div class="card-body">
+                                    <p class="card-text auto-wrap">
+                                        @((MarkupString)GetIntro(p.Content))
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        <div>
+            <div class="card mb-4 shadow-sm">
+                @if (!UserState.CurrentUser.IsEmpty())
+                {
+                    <div class="card-header">
+                        <UserInfo User="UserState.CurrentUser" />
+                        <button type="button" class="btn btn-primary comment-submit" onclick="@_Comment">发送</button>
+                    </div>
+                    <textarea id="textarea" class="from-control" rows="3" bind="@content" />
+                }
+                else
+                {
+                    <p />
+                    <p class="text-center">请先登录！</p>
+                }
+
+            </div>
+        </div>
+
+        <TemplatedList UpdatePage="@((a)=> BlogState.GetCommentsInArticle(Id,a))" ListGroupStyle="orders-list"
+                       TotalAmount="@totalAmount" ItemsPerPage="@AppConst.CommentsPerPage">
+            <LoadingContent><text>Loading...</text></LoadingContent>
+            <EmptyContent>
+                <p class="col-md-8 text-center">还没有评论，快来抢沙发吧！</p>
+            </EmptyContent>
+            <ItemContent Context="item">
+                <CommentBox Comment="@item" />
+            </ItemContent>
+        </TemplatedList>
+
+    </div>
+}
+
+
+
+@functions {
+    LoveDotNet.Models.Article article;
+    List<Paragraph> paragraphs;
+
+    int totalAmount;
+    string content = "";
+
+
+    [Parameter] int Id { get; set; }
+
+    protected override async Task OnInitAsync()
+    {
+        UserState.StateChanged += OnUserStateChanged;
+        BlogState.StateChanged += OnUserStateChanged;
+        article = await BlogState.GetArticle(Id);
+        paragraphs = await BlogState.GetParagraphsInArticle(article.Id);
+        totalAmount = await BlogState.GetCommentsTotalAmount(Id);
+    }
+
+    void IDisposable.Dispose()
+    {
+        UserState.StateChanged -= OnUserStateChanged;
+        BlogState.StateChanged -= OnUserStateChanged;
+    }
+
+    async void OnUserStateChanged(object sender, EventArgs e)
+    {
+        content = "";
+        totalAmount = await BlogState.GetCommentsTotalAmount(Id);
+        StateHasChanged();
+    }
+
+    string GetImage(string content)
+    {
+        int i = content.IndexOf(':');
+        return content.Substring(0, i);
+    }
+
+    string GetIntro(string content)
+    {
+        int i = content.IndexOf(':');
+        return content.Substring(i + 1);
+    }
+
+    async void _Comment()
+    {
+        await BlogState.PostComment(
+            new Comment()
+            {
+                Time = DateTime.Now,
+                Content = content,
+                ArticleId = Id,
+                UserId = UserState.CurrentUser.Id
+            });
+    }
+
+}
+

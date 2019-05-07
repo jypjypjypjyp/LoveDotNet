@@ -1,0 +1,299 @@
+﻿@page "/calculator"
+
+<h1>简易计算器</h1>
+
+<div class="calculator align-self-auto">
+
+    <div class="input-group mb-3">
+        <div class="input-group-prepend @indicator.Style">
+            <span class="input-group-text" id="inputGroup-sizing-default">@indicator.Info</span>
+        </div>
+        <p type="text" class="form-control">@monitor</p>
+    </div>
+
+    <div class="container keyboard">
+        <div class="row h-20">
+            <div class="col col-key">
+                <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("AC"))">AC</button>
+            </div>
+            <div class="col col-key">
+                <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("/"))">/</button>
+            </div>
+            <div class="col col-key">
+                <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("*"))">*</button>
+            </div>
+            <div class="col col-key">
+                <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("-"))">-</button>
+            </div>
+        </div>
+        <div class="row h-40">
+            <div class="col-9">
+                <div class="row h-50">
+                    <div class="col col-key">
+                        <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("7"))">7</button>
+                    </div>
+                    <div class="col col-key">
+                        <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("8"))">8</button>
+                    </div>
+                    <div class="col col-key">
+                        <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("9"))">9</button>
+                    </div>
+                </div>
+                <div class="row h-50">
+                    <div class="col col-key">
+                        <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("4"))">4</button>
+                    </div>
+                    <div class="col col-key">
+                        <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("5"))">5</button>
+                    </div>
+                    <div class="col col-key">
+                        <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("6"))">6</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3 col-key">
+                <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("+"))">+</button>
+            </div>
+        </div>
+        <div class="row h-40">
+            <div class="col-9">
+                <div class="row h-50">
+                    <div class="col col-key">
+                        <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("1"))">1</button>
+                    </div>
+                    <div class="col col-key">
+                        <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("2"))">2</button>
+                    </div>
+                    <div class="col col-key">
+                        <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("3"))">3</button>
+                    </div>
+                </div>
+                <div class="row h-50">
+                    <div class="col-8 col-key">
+                        <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("0"))">0</button>
+                    </div>
+                    <div class="col-4 col-key">
+                        <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("."))">.</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-3 col-key">
+                <button class="btn btn-light btn-key" onclick="@(() => ButtonClick("="))">=</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@functions {
+
+    enum Operator
+    {
+        Add, Sub, Mul, Div
+    }
+
+    public class Indicator
+    {
+        public enum IndicatorState
+        {
+            Input0, Input1, Input2, Success, Error
+        }
+
+        public Indicator()
+        {
+            Input0();
+        }
+
+        public IndicatorState State { get; set; }
+        public string Style { get; set; }
+        public string Info { get; set; }
+        public void Input0()
+        {
+            Style = "text-primary";
+            Info = "Input";
+            State = IndicatorState.Input0;
+        }
+        public void Input1()
+        {
+            Style = "text-primary";
+            Info = "Input";
+            State = IndicatorState.Input1;
+        }
+        public void Input2()
+        {
+            Style = "text-primary";
+            Info = "Input";
+            State = IndicatorState.Input2;
+        }
+        public void Success()
+        {
+            Style = "text-success";
+            Info = "Success";
+            State = IndicatorState.Success;
+        }
+        public void Error()
+        {
+            Style = "text-danger";
+            Info = "Error";
+            State = IndicatorState.Error;
+        }
+    }
+
+    string monitor = "";
+    Indicator indicator = new Indicator();
+
+    double a, b;
+    int m = 0;
+    Operator optr;
+
+    void ButtonClick(string btnName)
+    {
+
+        var preoperator = optr;
+        switch (indicator.State)
+        {
+            case Indicator.IndicatorState.Input0:
+                switch (btnName)
+                {
+                    case "AC":
+                        break;
+                    case "+":
+                    case "-":
+                    case "*":
+                    case "/":
+                    case "=":
+                    case ".":
+                        indicator.Error();
+                        break;
+                    default:
+                        indicator.Input1();
+                        monitor += btnName;
+                        break;
+                }
+                break;
+            case Indicator.IndicatorState.Input1:
+                switch (btnName)
+                {
+                    case "AC":
+                        monitor = "";
+                        indicator.Input0();
+                        break;
+                    case "+":
+                        optr = Operator.Add;
+                        goto After1;
+                    case "-":
+                        optr = Operator.Sub;
+                        goto After1;
+                    case "*":
+                        optr = Operator.Mul;
+                        goto After1;
+                    case "/":
+                        optr = Operator.Div;
+                        After1:
+                        a = double.Parse(monitor);
+                        monitor += btnName;
+                        m = monitor.Length;
+                        indicator.Input2();
+                        break;
+                    case "=":
+                        break;
+                    default:
+                        monitor += btnName;
+                        break;
+                }
+                break;
+            case Indicator.IndicatorState.Input2:
+                switch (btnName)
+                {
+                    case "AC":
+                        monitor = "";
+                        indicator.Input0();
+                        break;
+                    case "+":
+                        optr = Operator.Add;
+                        goto After2;
+                    case "-":
+                        optr = Operator.Sub;
+                        goto After2;
+                    case "*":
+                        optr = Operator.Mul;
+                        goto After2;
+                    case "/":
+                        optr = Operator.Div;
+                    After2:
+                        b = double.Parse(monitor.Substring(m));
+                        if (Calculate(a, b, out a, preoperator))
+                        {
+                            monitor = a.ToString("G8");
+                            monitor += btnName;
+                            m = monitor.Length;
+                            indicator.Input2();
+                        }
+                        else
+                        {
+                            indicator.Error();
+                        }
+                        break;
+                    case "=":
+                        b = double.Parse(monitor.Substring(m));
+                        if (Calculate(a, b, out a, preoperator))
+                        {
+                            monitor = a.ToString("G8");
+                            indicator.Success();
+                        }
+                        else
+                        {
+                            indicator.Error();
+                        }
+                        break;
+                    default:
+                        monitor += btnName;
+                        break;
+                }
+                break;
+            case Indicator.IndicatorState.Error:
+                monitor = "";
+                indicator.Input0();
+                goto case Indicator.IndicatorState.Input0;
+            case Indicator.IndicatorState.Success:
+                if (new String[] { "AC", "+", "-", "*", "/", "=" }.Contains(btnName))
+                {
+                    indicator.Input1();
+                    goto case Indicator.IndicatorState.Input1;
+                }
+                else
+                {
+                    monitor = "";
+                    indicator.Input0();
+                    goto case Indicator.IndicatorState.Input0;
+                }
+        }
+    }
+
+
+    bool Calculate(double a, double b, out double c, Operator preoperator)
+    {
+        c = 0;
+        switch (preoperator)
+        {
+            case Operator.Add:
+                c = a + b;
+                return true;
+            case Operator.Sub:
+                c = a - b;
+                return true;
+            case Operator.Mul:
+                c = a * b;
+                return true;
+            case Operator.Div:
+                if (b == 0)
+                {
+                    monitor = "Error";
+                    return false;
+                }
+                c = a / b;
+                return true;
+        }
+        return false;
+    }
+    }

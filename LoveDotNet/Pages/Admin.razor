@@ -1,0 +1,23 @@
+﻿@page "/admin"
+@inject HttpClient Http
+@inject IUriHelper UriHelper
+
+<h1>管理员</h1>
+
+<div class="input-group mb-3">
+    <input type="password" class="form-control" aria-label="请输入密码" bind="@password" />
+    <button class="btn btn-primary" onclick="@Authenticate">Click me</button>
+</div>
+
+
+@functions {
+    string password = "";
+
+    void Authenticate()
+    {
+        if (Http.PostJsonAsync<bool>("api/Admin", password).Result)
+        {
+            //UriHelper.NavigateTo("editor",);
+        }
+    }
+}

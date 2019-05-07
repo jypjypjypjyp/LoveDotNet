@@ -1,0 +1,169 @@
+﻿@page "/editor"
+@inject UserState UserState
+@inject BlogState BlogState
+@inject IUriHelper UriHelper
+@using LoveDotNet.Models
+
+@if (UserState.CurrentUser.IsEditor)
+{
+    <div class="blog-post col-md-10 article">
+        <p>标题</p>
+        <textarea class="from-control col-md-12" rows="1" bind="@article.Title" />
+        <p>描述</p>
+        <textarea class="from-control col-md-12" rows="3" bind="@article.Description" />
+        <p />
+        @for (int i = 0; i < paragraphs.Count; i++)
+        {
+            var p = paragraphs[i];
+            switch (p.Type)
+            {
+                case ParagraphType.Text:
+                    @((MarkupString)p.Content)
+                    break;
+                case ParagraphType.Image:
+                    <div class="col-md-8 mx-auto">
+                        <div class="card mb-4 shadow-sm">
+                            <img src="/img/@(GetImage(p.Content))" class="img-fluid" />
+                            <div class="card-body">
+                                <p class="card-text auto-wrap">
+                                    @((MarkupString)GetIntro(p.Content))
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    break;
+                default:
+                    break;
+            }
+            <button type="button" class="btn btn-primary comment-submit" onclick="@(()=>Delete(i))">删除</button>
+        }
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header">
+                <span class="card-head-text">@(ShowParagraphType())</span>
+                <button type="button" class="btn btn-primary ml-2" onclick="@(()=>ChangeType(ParagraphType.Text))">文本</button>
+                <button type="button" class="btn btn-primary ml-2" onclick="@(()=>ChangeType(ParagraphType.Image))">图片</button>
+                <button type="button" class="btn btn-primary ml-2" onclick="@_Commit">提交</button>
+                <button type="button" class="btn btn-primary ml-2" onclick="@_Publish">发布</button>
+                <div class="alert alert-danger @(publishFailed ? "" : "hide")" role="alert">
+                    未知错误！请重新发布
+                </div>
+                <div class="alert alert-success @(publishSuccess ? "" : "hide")" role="alert">
+                    发布成功！
+                </div>
+            </div>
+            @if (newParagraph.Type == ParagraphType.Image)
+            {
+                <ImageUploader UploadImage="@_UploadFile" FileName="@(DateTime.Now.ToFileTimeUtc().ToString())" Floder="@("img")"/>
+            }
+            <textarea class="from-control" rows="3" bind="@content" />
+        </div>
+    </div>
+}
+
+@functions {
+    LoveDotNet.Models.Article article;
+    List<Paragraph> paragraphs;
+
+    Paragraph newParagraph;
+    string content;
+
+    bool publishFailed;
+    bool publishSuccess;
+
+    protected override void OnInit()
+    {
+        paragraphs = new List<Paragraph>();
+        article = new LoveDotNet.Models.Article();
+        newParagraph = new Paragraph();
+    }
+
+    void ChangeType(ParagraphType type)
+    {
+        newParagraph.Type = type;
+        StateHasChanged();
+    }
+
+    void Delete(int i)
+    {
+        paragraphs.RemoveAt(i);
+        StateHasChanged();
+    }
+
+    async Task<bool> _UploadFile(string fileName)
+    {
+        newParagraph.Content = fileName;
+        return true;
+    }
+
+    void _Commit()
+    {
+        switch (newParagraph.Type)
+        {
+            case ParagraphType.Text:
+                newParagraph.Content = content;
+                break;
+            case ParagraphType.Image:
+                newParagraph.Content += ":" + content;
+                break;
+            default:
+                break;
+        }
+        paragraphs.Add(newParagraph);
+        newParagraph = new Paragraph();
+        StateHasChanged();
+    }
+
+    async void _Publish()
+    {
+        publishFailed = false;
+        publishSuccess = false;
+        try
+        {
+            article.Time = DateTime.Now;
+            article.UserId = UserState.CurrentUser.Id;
+            article = await BlogState.PostArticle(article);
+            for (int i = 0; i < paragraphs.Count; i++)
+            {
+                var p = paragraphs[i];
+                p.ArticleId = article.Id;
+                p.Number = i + 1;
+                await BlogState.PostParagraph(p);
+            }
+            publishSuccess = true;
+            UriHelper.NavigateTo("/");
+        }
+        catch (Exception)
+        {
+            publishFailed = true;
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+    string ShowParagraphType()
+    {
+        switch (newParagraph.Type)
+        {
+            case ParagraphType.Text:
+                return "文本";
+            case ParagraphType.Image:
+                return "图片";
+            default:
+                return "";
+        }
+    }
+
+    string GetImage(string content)
+    {
+        int i = content.IndexOf(':');
+        return content.Substring(0, i);
+    }
+
+    string GetIntro(string content)
+    {
+        int i = content.IndexOf(':');
+        return content.Substring(i + 1);
+    }
+}

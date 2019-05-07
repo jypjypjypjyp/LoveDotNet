@@ -1,0 +1,87 @@
+﻿@using Blazor.FileReader
+@using LoveDotNet.Helpers
+@inject IFileReaderService fileReaderService;
+<div>
+    <div class="input-group">
+        <div class="custom-file">
+            <input type="file" class="custom-file-input" id="inputGroupFile" ref="inputElement" accept=".jpg,.png"/>
+            <label class="custom-file-label" for="inputGroupFile">选择文件</label>
+        </div>
+        <div class="input-group-append">
+            <button class="btn btn-outline-secondary" onclick="@_UploadImage">上传</button>
+        </div>
+    </div>
+    <div class="alert alert-danger @(failed ? "" : "hide")" role="alert">
+        上传失败！
+    </div>
+    @if (progress != 0 && failed == false)
+    {
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: @(progress)%;">@(progress)%</div>
+        </div>
+    }
+</div>
+
+@functions {
+
+    [Parameter] Func<string, Task<bool>> UploadImage { get; set; }
+    [Parameter] string Floder { get; set; }
+    [Parameter] string FileName { get; set; }
+    ElementRef inputElement;
+    int progress;
+    bool failed;
+    readonly int bufferSize = 2000;
+
+    async void _UploadImage()
+    {
+        progress = 0;
+        failed = false;
+        StateHasChanged();
+
+        var file = (await fileReaderService.CreateReference(inputElement).EnumerateFilesAsync()).FirstOrDefault();
+        if (file == null)
+        {
+            failed = true;
+            goto Final;
+        }
+        var fileInfo = await file.ReadFileInfoAsync();
+
+        string fileType;
+        if (fileInfo.Type == "image/jpeg")
+        {
+            fileType = "jpg";
+        }
+        else if(fileInfo.Type == "image/png")
+        {
+            fileType = "png";
+        }
+        else
+        {
+            goto Final;
+        }
+        var fileName = FileName + "." + fileType;
+        var filePath = AppConst.WebRootPath + "/"+Floder+"/" + fileName;
+        using (var writer = System.IO.File.OpenWrite(filePath))
+        {
+            using (var reader = await file.OpenReadAsync())
+            {
+                byte[] buffer = new byte[bufferSize];
+                int count = 0;
+                long length = 0;
+                while ((count = await reader.ReadAsync(buffer, 0, buffer.Length)) != 0)
+                {
+                    await writer.WriteAsync(buffer, 0, buffer.Length);
+                    progress = (int)(100 * length / fileInfo.Size);
+                    StateHasChanged();
+                }
+            }
+        }
+        if (!await UploadImage(fileName))
+        {
+            failed = true;
+        }
+    Final:
+        progress = 0;
+        StateHasChanged();
+    }
+}

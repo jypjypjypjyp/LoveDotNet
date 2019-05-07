@@ -1,0 +1,77 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <LangVersion>8.0</LangVersion>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <ApplicationIcon />
+    <StartupObject />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\**" />
+    <Content Remove="Migrations\**" />
+    <EmbeddedResource Remove="Migrations\**" />
+    <None Remove="Migrations\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Server\Migrations\MyDBContextModelSnapshot.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\script\FileReaderComponent.js" />
+    <Content Remove="wwwroot\script\FileReaderComponent.js.map" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Migrations\20190503051259_Init.cs" />
+    <Compile Include="Migrations\20190503051259_Init.Designer.cs" />
+    <Compile Include="Migrations\20190507044700_AddIsEditor.cs" />
+    <Compile Include="Migrations\20190507044700_AddIsEditor.Designer.cs" />
+    <Compile Include="Migrations\MyDBContextModelSnapshot.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="wwwroot\script\FileReaderComponent.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <LogicalName>blazor:js:%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="wwwroot\script\FileReaderComponent.js.map">
+      <LogicalName>blazor:file:%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MailKit" Version="2.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0-preview4-19216-03" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview4.19216.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview4.19216.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0-preview4.19216.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETCore.Platforms" Version="3.0.0-preview4.19212.13" />
+    <PackageReference Include="Tewr.Blazor.FileReader" Version="0.10.19116" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BlazingComponents\BlazingComponents.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Server\Migrations\" />
+    <Folder Include="wwwroot\icon\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="C:\Users\jypjy\.nuget\packages\tewr.blazor.filereader\0.10.19116\contentFiles\any\netstandard2.0\content\FileReaderComponent.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

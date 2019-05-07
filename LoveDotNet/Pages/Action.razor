@@ -1,0 +1,42 @@
+﻿@page "/action/{code}"
+@inject UserState UserState
+@using LoveDotNet.Helpers
+
+<h5>Action</h5>
+<p>@code</p>
+<p>@status</p>
+
+@functions {
+    [Parameter] string code { get; set; }
+
+    string status;
+
+    protected override async Task OnInitAsync()
+    {
+        if (ActionHelper.ActionDict.TryGetValue(code, out (int, ActionType) v))
+        {
+            switch (v.Item2)
+            {
+                case ActionType.Apply:
+                    await _MakeEditor(v.Item1);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    async Task _MakeEditor(int id)
+    {
+        if(await UserState.MakeEditor(id))
+        {
+            status = "Sucess";
+            ActionHelper.ActionDict.Remove(code);
+        }
+        else
+        {
+            status = "Failed";
+        }
+        StateHasChanged();
+    }
+}

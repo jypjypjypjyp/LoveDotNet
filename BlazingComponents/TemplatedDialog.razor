@@ -1,0 +1,14 @@
+﻿@if (Show)
+{
+    <div class="dialog-container">
+        <div class="dialog">
+            <span class="shut" onclick="@(()=> { Show = false; })"> X</span>
+            @ChildContent
+        </div>
+    </div>
+}
+
+@functions {
+    [Parameter] RenderFragment ChildContent { get; set; }
+    [Parameter] bool Show { get; set; }
+}

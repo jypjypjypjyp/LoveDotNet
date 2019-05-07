@@ -1,0 +1,28 @@
+﻿@page "/"
+@using BlazingComponents
+@inject BlogState BlogState
+@using LoveDotNet.Helpers
+
+<div class="main">
+    <TemplatedList UpdatePage="BlogState.UpdatePage" ListGroupStyle="orders-list"
+                   TotalAmount="@totalAmount" ItemsPerPage="@AppConst.BlogsPerPage">
+        <LoadingContent><text>Loading...</text></LoadingContent>
+        <EmptyContent>
+            <h2>Empty</h2>
+        </EmptyContent>
+        <ItemContent Context="item">
+            <BlogCard Article="@item" />
+        </ItemContent>
+    </TemplatedList>
+</div>
+
+@functions {
+    int totalAmount;
+
+    protected override async Task OnInitAsync()
+    {
+        totalAmount = await BlogState.GetTotalAmount();
+    }
+
+}
+
