@@ -73,12 +73,19 @@ namespace LoveDotNet.Server.Controllers
 
         // POST: api/Comments
         [HttpPost]
-        public async Task<ActionResult<Comment>> PostComment(Comment Comment)
+        public async Task<ActionResult<bool>> PostComment(Comment Comment)
         {
             _context.Comments.Add(Comment);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
 
-            return CreatedAtAction("GetComment", new { id = Comment.Id }, Comment);
         }
 
         // DELETE: api/Comments/5

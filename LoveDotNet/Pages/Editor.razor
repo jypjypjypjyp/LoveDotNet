@@ -3,6 +3,7 @@
 @inject BlogState BlogState
 @inject IUriHelper UriHelper
 @using LoveDotNet.Models
+@using BlazingComponents
 
 @if (UserState.CurrentUser.IsEditor)
 {
@@ -37,7 +38,7 @@
                 default:
                     break;
             }
-            <button type="button" class="btn btn-primary comment-submit" onclick="@(()=>Delete(i))">删除</button>
+            <ParamButton i="i" F="@_Delete" s="@("删除")"/>
         }
         <div class="card mb-4 shadow-sm">
             <div class="card-header">
@@ -85,9 +86,10 @@
         StateHasChanged();
     }
 
-    void Delete(int i)
+    void _Delete(int i)
     {
         paragraphs.RemoveAt(i);
+        content = "";
         StateHasChanged();
     }
 
@@ -112,6 +114,7 @@
         }
         paragraphs.Add(newParagraph);
         newParagraph = new Paragraph();
+        content = "";
         StateHasChanged();
     }
 

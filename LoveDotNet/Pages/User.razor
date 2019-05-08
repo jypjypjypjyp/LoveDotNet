@@ -24,9 +24,6 @@
         @if (isMe)
         {
             <button class="btn btn-primary ml-md-auto" onclick="@(()=>UserState.ShowUpdateDialog = true)">修改资料</button>
-            <div class="alert alert-danger @(applyFailed ? "" : "hide")" role="alert">
-                错误：无法登录，请重新检查输入。
-            </div>
         }
     </div>
 

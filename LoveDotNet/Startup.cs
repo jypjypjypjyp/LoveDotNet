@@ -29,14 +29,17 @@ namespace LoveDotNet
                 options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
                 );
             services.AddRazorPages();
-            services.AddServerSideBlazor();
+            services.AddServerSideBlazor().AddSignalR().AddHubOptions<ComponentHub>(o =>
+            {
+                o.MaximumReceiveMessageSize = 102400000;
+            });
             // Setup user state
             services.AddScoped<UserState>();
             services.AddScoped<BlogState>();
             services.AddScoped<IFileReaderService, FileReaderService>();
 
             // Setup DBcontext
-            var connection = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\jypjy\source\repos\LoveDotNet.Blazor\Data\lovedotnet.mdf;Integrated Security=True;Connect Timeout=30";
+            //var connection = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\jypjy\source\repos\LoveDotNet.Blazor\Data\lovedotnet.mdf;Integrated Security=True;Connect Timeout=30";
             services.AddDbContext<MyDBContext>(options => options.UseMySql(connection));
 
             // Setup HttpClient for server side in a client side compatible fashion
@@ -50,9 +53,7 @@ namespace LoveDotNet
                 };
             });
 
-            services.AddSingleton<IFileProvider>(
-            new PhysicalFileProvider(
-                Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
+            services.AddSingleton<IFileProvider>(new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -78,13 +79,7 @@ namespace LoveDotNet
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapHub<ComponentHub>(
-                    ComponentHub.DefaultPath,
-                    o =>
-                    {
-                        o.ApplicationMaxBufferSize = 102400000; // larger size
-                        o.TransportMaxBufferSize = 102400000; // larger size
-                    });
+                endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
         }

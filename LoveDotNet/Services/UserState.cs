@@ -29,11 +29,7 @@ namespace LoveDotNet
 
         public async Task<bool> UpdateUser(int id, User user)
         {
-            var json = JsonConvert.SerializeObject(user);
-            var stringContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var result = await http.PutAsync("api/Users/" + id, stringContent);
-
-            if (result.StatusCode == System.Net.HttpStatusCode.NoContent)
+            if (await http.PutJsonAsync<bool>("api/Users/" + id, user))
             {
                 CurrentUser = user;
                 ShowUpdateDialog = false;
@@ -103,11 +99,7 @@ namespace LoveDotNet
         {
             var u = await http.GetJsonAsync<User>("api/Users/" + id);
             u.IsEditor = true;
-            var json = JsonConvert.SerializeObject(u);
-            var stringContent = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
-            var result = await http.PutAsync("api/Users/" + id, stringContent);
-
-            if (result.StatusCode == System.Net.HttpStatusCode.NoContent)
+            if (await http.PutJsonAsync<bool>("api/Users/" + id, u))
             {
                 await EmailHelper.SendAsync(
                 u.Email,

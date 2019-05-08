@@ -55,6 +55,7 @@
     <Folder Include="Migrations\" />
     <Folder Include="Server\Migrations\" />
     <Folder Include="wwwroot\icon\" />
+    <Folder Include="wwwroot\img\" />
   </ItemGroup>
 
   <ItemGroup>

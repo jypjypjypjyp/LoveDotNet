@@ -42,11 +42,11 @@ namespace LoveDotNet.Server.Controllers
 
         // PUT: api/Users/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        public async Task<ActionResult<bool>> PutUser(int id, User user)
         {
             if (id != user.Id)
             {
-                return BadRequest();
+                return false;
             }
 
             _context.Entry(user).State = EntityState.Modified;
@@ -59,7 +59,7 @@ namespace LoveDotNet.Server.Controllers
             {
                 if (!UserExists(id))
                 {
-                    return NotFound();
+                    return false;
                 }
                 else
                 {
@@ -67,7 +67,7 @@ namespace LoveDotNet.Server.Controllers
                 }
             }
 
-            return NoContent();
+            return true;
         }
 
         // POST: api/Users

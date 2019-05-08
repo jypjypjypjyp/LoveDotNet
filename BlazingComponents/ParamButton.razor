@@ -1,0 +1,7 @@
+﻿<button type="button" class="btn btn-primary" onclick="@(()=>F(i))">@s</button>
+
+@functions{
+    [Parameter] int i { get; set; }
+    [Parameter] string s { get; set; }
+    [Parameter] Action<int> F { get; set; }
+}

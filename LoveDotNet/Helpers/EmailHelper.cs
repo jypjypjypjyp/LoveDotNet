@@ -6,9 +6,9 @@ namespace LoveDotNet.Helpers
 {
     public static class EmailHelper
     {
-        private static string mailFrom = "jypjypjypjyp@hotmail.com";
-        private static string mailFromAccount = "jypjypjypjyp@hotmail.com";
-        private static string mailPassword = "jyp258321654";
+        private static string mailFrom = "xxxxxxx@xx.com";
+        private static string mailFromAccount = "xxxxxxx@xx.com";
+        private static string mailPassword = "xxxxxxxxxxxxxx";
 
         private static SmtpClient _clinet;
         private static SmtpClient client
@@ -22,7 +22,7 @@ namespace LoveDotNet.Helpers
                         Port = 587,
                         UseDefaultCredentials = false,
                         DeliveryMethod = SmtpDeliveryMethod.Network,
-                        Host = "smtp.live.com",
+                        Host = "smtp.qq.com",
                         EnableSsl = true,
                         Credentials = new System.Net.NetworkCredential(mailFromAccount, mailPassword)
                     };
@@ -38,7 +38,7 @@ namespace LoveDotNet.Helpers
         public static async Task<bool> SendAsync(string to, string subject, string html)
         {
             var mymail = new MailMessage();
-            mymail.From = new System.Net.Mail.MailAddress(mailFrom);
+            mymail.From = new MailAddress(mailFrom);
             mymail.To.Add(to);
             mymail.Subject = subject;
             mymail.Body = html;
