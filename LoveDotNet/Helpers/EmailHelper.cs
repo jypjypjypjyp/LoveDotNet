@@ -30,6 +30,11 @@ namespace LoveDotNet.Helpers
                 return _clinet;
             }
         }
+        public static async void SendAsyncWithoutAwait(string to, string subject, string html)
+        {
+            await SendAsync(to, subject, html);
+        }
+
         public static async Task<bool> SendAsync(string to, string subject, string html)
         {
             var mymail = new MailMessage();

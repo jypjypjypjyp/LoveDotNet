@@ -7,7 +7,6 @@ namespace LoveDotNet.Models
     {
         Text,Image
     }
-
     public class Paragraph
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

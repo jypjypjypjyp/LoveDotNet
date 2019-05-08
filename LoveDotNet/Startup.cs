@@ -34,11 +34,10 @@ namespace LoveDotNet
             services.AddScoped<UserState>();
             services.AddScoped<BlogState>();
             services.AddScoped<IFileReaderService, FileReaderService>();
-            
 
             // Setup DBcontext
             var connection = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\jypjy\source\repos\LoveDotNet.Blazor\Data\lovedotnet.mdf;Integrated Security=True;Connect Timeout=30";
-            services.AddDbContext<MyDBContext>(options => options.UseSqlServer(connection));
+            services.AddDbContext<MyDBContext>(options => options.UseMySql(connection));
 
             // Setup HttpClient for server side in a client side compatible fashion
             services.AddScoped(s =>
@@ -86,7 +85,6 @@ namespace LoveDotNet
                         o.ApplicationMaxBufferSize = 102400000; // larger size
                         o.TransportMaxBufferSize = 102400000; // larger size
                     });
-                //endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
         }

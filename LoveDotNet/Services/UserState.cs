@@ -10,7 +10,8 @@ namespace LoveDotNet
 {
     public class UserState
     {
-        public event EventHandler StateChanged;
+        public event EventHandler UserChanged;
+        public event EventHandler UserInfoChanged;
         public User CurrentUser { get; set; } = new User();
         public bool ShowLoginDialog { get; set; }
         public bool ShowUpdateDialog { get; set; }
@@ -36,10 +37,10 @@ namespace LoveDotNet
             {
                 CurrentUser = user;
                 ShowUpdateDialog = false;
-                StateHasChanged();
+                UserInfoHasChanged();
                 return true;
             }
-            StateHasChanged();
+            UserInfoHasChanged();
             return false;
         }
 
@@ -50,7 +51,7 @@ namespace LoveDotNet
                 return false;
             CurrentUser = result;
             ShowLoginDialog = false;
-            StateHasChanged();
+            UserHasChanged();
             return false;
         }
         public async Task<bool> Signup(string email, string passwd)
@@ -60,21 +61,21 @@ namespace LoveDotNet
                 return false;
             CurrentUser = result;
             ShowLoginDialog = false;
-            await EmailHelper.SendAsync(
+            UserHasChanged();
+            EmailHelper.SendAsyncWithoutAwait(
                 CurrentUser.Email,
                 "【LoveDotNet】欢迎加入",
                 string.Format(
 @"<p>{0}：<br>
 <p> 注册成功！请存档本邮件以方便找回密码，您的密码为{1}<br>
 <p> --LoveDotNet <br>", CurrentUser.Email, CurrentUser.Password));
-            StateHasChanged();
             return true;
         }
 
         public void Signout()
         {
             CurrentUser = new User();
-            StateHasChanged();
+            UserHasChanged();
         }
 
         public async Task<bool> Apply()
@@ -123,9 +124,13 @@ namespace LoveDotNet
             }
         }
 
-        private void StateHasChanged()
+        private void UserHasChanged()
         {
-            StateChanged?.Invoke(this, EventArgs.Empty);
+            UserChanged?.Invoke(this, EventArgs.Empty);
+        }
+        private void UserInfoHasChanged()
+        {
+            UserInfoChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

@@ -116,7 +116,7 @@ namespace LoveDotNet.Server.Controllers
 
             if (result != null)
                 return new User();
-            user.Name = user.Email;
+            user.IsEditor = false;
             _context.User.Add(user);
             await _context.SaveChangesAsync();
             return CreatedAtAction("GetUser", new { id = user.Id }, user);

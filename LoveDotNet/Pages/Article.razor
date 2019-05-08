@@ -23,7 +23,9 @@ else
                 switch (p.Type)
                 {
                     case ParagraphType.Text:
-                        @((MarkupString)p.Content)
+                        <p class="auto-wrap">
+                            @((MarkupString)GetIntro(p.Content))
+                        </p>
                         break;
                     case ParagraphType.Image:
                         <div class="col-md-8 mx-auto">
@@ -90,8 +92,8 @@ else
 
     protected override async Task OnInitAsync()
     {
-        UserState.StateChanged += OnUserStateChanged;
-        BlogState.StateChanged += OnUserStateChanged;
+        UserState.UserChanged += OnStateChanged;
+        BlogState.StateChanged += OnStateChanged;
         article = await BlogState.GetArticle(Id);
         paragraphs = await BlogState.GetParagraphsInArticle(article.Id);
         totalAmount = await BlogState.GetCommentsTotalAmount(Id);
@@ -99,11 +101,11 @@ else
 
     void IDisposable.Dispose()
     {
-        UserState.StateChanged -= OnUserStateChanged;
-        BlogState.StateChanged -= OnUserStateChanged;
+        UserState.UserChanged -= OnStateChanged;
+        BlogState.StateChanged -= OnStateChanged;
     }
 
-    async void OnUserStateChanged(object sender, EventArgs e)
+    async void OnStateChanged(object sender, EventArgs e)
     {
         content = "";
         totalAmount = await BlogState.GetCommentsTotalAmount(Id);

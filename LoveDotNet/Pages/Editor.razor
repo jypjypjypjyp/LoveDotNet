@@ -18,7 +18,9 @@
             switch (p.Type)
             {
                 case ParagraphType.Text:
-                    @((MarkupString)p.Content)
+                    <p class="auto-wrap">
+                        @((MarkupString)GetIntro(p.Content))
+                    </p>
                     break;
                 case ParagraphType.Image:
                     <div class="col-md-8 mx-auto">

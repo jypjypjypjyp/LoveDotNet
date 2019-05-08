@@ -4,7 +4,7 @@
 <button class="btn btn-primary ml-md-auto" onclick="@_ToUser">
     <div class="d-inline-block">
         <img src="/avator/@(User.Avator??"0.png")" class="img-fluid avator-sm" />
-        <span>@(User.Name ?? string.Join("", User.Email.Take(5)))</span>
+        <span>@(User.Name ?? "不留名的大佬")</span>
     </div>
 </button>
 

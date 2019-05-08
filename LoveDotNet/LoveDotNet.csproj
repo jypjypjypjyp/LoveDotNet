@@ -29,14 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Migrations\20190503051259_Init.cs" />
-    <Compile Include="Migrations\20190503051259_Init.Designer.cs" />
-    <Compile Include="Migrations\20190507044700_AddIsEditor.cs" />
-    <Compile Include="Migrations\20190507044700_AddIsEditor.Designer.cs" />
-    <Compile Include="Migrations\MyDBContextModelSnapshot.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <EmbeddedResource Include="wwwroot\script\FileReaderComponent.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <LogicalName>blazor:js:%(RecursiveDir)%(Filename)%(Extension)</LogicalName>
@@ -49,13 +41,9 @@
   <ItemGroup>
     <PackageReference Include="MailKit" Version="2.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0-preview4-19216-03" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0-preview4.19216.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0-preview4.19216.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0-preview4.19216.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
     <PackageReference Include="Microsoft.NETCore.Platforms" Version="3.0.0-preview4.19212.13" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
     <PackageReference Include="Tewr.Blazor.FileReader" Version="0.10.19116" />
   </ItemGroup>
 
@@ -64,6 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Migrations\" />
     <Folder Include="Server\Migrations\" />
     <Folder Include="wwwroot\icon\" />
   </ItemGroup>

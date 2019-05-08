@@ -81,7 +81,7 @@
 
     protected override async Task OnInitAsync()
     {
-        UserState.StateChanged += OnUserStateChanged;
+        UserState.UserInfoChanged += OnUserInfoChanged;
         await Init();
     }
 
@@ -103,10 +103,10 @@
 
     void IDisposable.Dispose()
     {
-        UserState.StateChanged -= OnUserStateChanged;
+        UserState.UserInfoChanged -= OnUserInfoChanged;
     }
 
-    async void OnUserStateChanged(object sender, EventArgs e)
+    async void OnUserInfoChanged(object sender, EventArgs e)
     {
         await Init();
         StateHasChanged();
