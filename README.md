@@ -5,4 +5,4 @@ LoveDotNet是基于Server-Side Blazor开发个人博客网站。本人目前也�
 
 **本项目仅仅为一个Demo，仅供参考学习。**
 
-**本项目暂时不维护了，请移步https://github.com/jypjypjypjyp/LoveDotNet.Wasm，Client-Side**
+**本项目暂时不维护了，请移步https://github.com/jypjypjypjyp/LoveDotNet.Wasm**
